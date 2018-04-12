@@ -6,6 +6,10 @@ import java.util.ArrayList;
 public class Server {
 	public static Bin bins[][] = new Bin[31][22];
 	
+	
+	public static ArrayList <Path> allPaths;
+	
+	
 	public static void main(String[] args) throws IOException {
 		for(int i=0;i<31;i++) {
 			for(int j=0;j<22;j++) {
@@ -19,8 +23,8 @@ public class Server {
 		d.p1 = P;
 		d.x = P.oriX;
 		d.y = P.oriY;
-		d.a = P.oria;
-		d.b = P.orib;
+		d.a = P.ori.a;
+		d.b = P.ori.b;
 				
 	}
 	
@@ -76,8 +80,8 @@ public class Server {
 	}
 	
 	public static int distortion (Driver d , Passenger p) {
-		int manhattanD =  manhattan(d.p1.desa, p.desa, d.p1.desb, p.desb);
-		int manhattanO =  manhattan(d.a, p.oria, d.b, p.orib);
+		int manhattanD =  manhattan(d.p1.dest.a, p.dest.a, d.p1.dest.b, p.dest.b);
+		int manhattanO =  manhattan(d.a, p.ori.a, d.b, p.ori.b);
 		
 		return manhattanD + manhattanO;
 		
@@ -95,6 +99,23 @@ public class Server {
 		
 		return manh;
 		
+	}
+	public static void routes(ArrayList <BinNumber> path, Driver d, ArrayList <Passenger> plist) {
+		if((path.get(path.size() - 1).a == d.p1.dest.a) && (path.get(path.size() - 1).b == d.p1.dest.b)){
+			Path p = new Path();
+			p.binno.addAll(path);
+			allPaths.add(p);
+			//if destination matches to final one then make it a route and store
+		}
+		else {
+			//needs to be added
+			
+		}
+		
+	}
+	public static Passenger bestPassenger(Driver d) {
+		Passenger p = new Passenger();
+		return p;
 	}
 	
 }
