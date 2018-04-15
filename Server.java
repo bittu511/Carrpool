@@ -23,8 +23,8 @@ public class Server {
 		d.p1 = P;
 		d.x = P.oriX;
 		d.y = P.oriY;
-		d.a = P.ori.a;
-		d.b = P.ori.b;
+		d.dbin.a = P.ori.a;
+		d.dbin.b = P.ori.b;
 				
 	}
 	
@@ -45,7 +45,7 @@ public class Server {
 		
 	}
 	public static ArrayList<Bin> Maximun_Density_Bins(Driver d) { 
-		//finding the neighbouring bins with max density
+		//finding the neighboring bins with max density
 		ArrayList <Bin> list = new ArrayList <Bin>();
 		int dx = (int) Math.floor((22.657-d.x)/0.00655);
 		int dy = (int) Math.floor((88.491-d.y)/0.00954);
@@ -64,7 +64,6 @@ public class Server {
 		}
 		for(int i=dx-1 ; i<dx+2;i++) {
 			for(int j=dy-1 ; j<dy+2;i++) {
-				int k = 0;
 				if(i>=0 || i<31) {
 					if(j>=0 || j<22) {
 						if(max == bins[i][j].binDensity) {
@@ -81,7 +80,7 @@ public class Server {
 	
 	public static int distortion (Driver d , Passenger p) {
 		int manhattanD =  manhattan(d.p1.dest.a, p.dest.a, d.p1.dest.b, p.dest.b);
-		int manhattanO =  manhattan(d.a, p.ori.a, d.b, p.ori.b);
+		int manhattanO =  manhattan(d.dbin.a, p.ori.a, d.dbin.b, p.ori.b);
 		
 		return manhattanD + manhattanO;
 		
@@ -108,13 +107,45 @@ public class Server {
 			//if destination matches to final one then make it a route and store
 		}
 		else {
-			//needs to be added
-			
+			//first the current bin is to be checked for passenger pick and/or drop
+			//that procedure remains
+			ArrayList <Passenger> neighbourlist = neighbours(d);
+			int k = 0;
+			while(k < 3) {
+				Passenger bestp = bestPassenger(neighbourlist, d);
+				neighbourlist.remove(bestp);
+				
+				path.add(bestp.ori);
+				path.add(bestp.dest);
+				//a function needed to organize " ArrayList <BinNumber> path "
+				plist.add(bestp);
+				int i = path.indexOf(d.dbin);
+				//finds the current index of the driver on the path and
+				//as the path is organized next index will lead to the final destination
+				d.dbin = path.get(i+1);
+				routes(path, d, plist);
+				
+				path.remove(bestp.ori);
+				path.remove(bestp.dest);
+				plist.remove(bestp);
+				
+				k++;
+				
+			}
 		}
 		
 	}
-	public static Passenger bestPassenger(Driver d) {
+	public static ArrayList <Passenger> neighbours(Driver d) {
+		ArrayList <Passenger> plist = new ArrayList <Passenger>();
+		//receives a driver and generates its 9 neighbours
+		//finds the max bins
+		//takes all the passengers from max bins and puts them in a arraylist of passengers
+		//returns the arraylist
+		return plist;
+	}
+	public static Passenger bestPassenger(ArrayList <Passenger> plist, Driver d) {
 		Passenger p = new Passenger();
+		//selects the best passenger for driver d from plist
 		return p;
 	}
 	
