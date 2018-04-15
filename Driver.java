@@ -9,6 +9,7 @@ public class Driver {
 	ArrayList <Passenger> plist = new ArrayList <Passenger>();
 	int pcount = 0;
 	
-	int a = 0 ; // driver current bin
-	int b = 0;
+	BinNumber dbin = new BinNumber();
+	 // driver current bin
+	
 }
