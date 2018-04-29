@@ -185,7 +185,49 @@ public class Server {
 	public static Passenger bestPassenger(ArrayList <Passenger> plist, Driver d) {
 		Passenger p = new Passenger();
 		//selects the best passenger for driver d from plist
+		Passenger p = new Passenger();
+		ArrayList <Passenger> list = new ArrayList <Passenger>();
+		list = plist;
+		double dis = distortion( d , list.get(0) );//cost for distortion
+		double backtrack = BacktrackCost( d , list.get(0));//cost for backtrack
+		double lcost = dis + backtrack;
+		p = list.get(0);
+		for( int i = 0 ; i < list.size() ; i++){
+		 dis = distortion( d , list.get(i) );
+		 backtrack = BacktrackCost( d , list.get(0));
+		 double cost = dis + backtrack;
+		 if( lcost < cost  ) {
+			 lcost = cost;
+			 p = list.get(i);//return best passenger
+		 }
+		}
 		return p;
 	}
+	public static double BacktrackCost( Driver d , Passenger p ){
+		    //cost calculation if the car backtracks
+		    double globalx = d.p1.destX - d.p1.destX;
+		    double globaly = d.p1.destY - d.p1.destY;
+		    double localx = p.oriX - d.x;
+		    double localy = p.oriY - d.y;
+		    double currentx = d.p1.destX - d.x;
+		    double currenty = d.p1.destY - d.y;
+		    double valuex , valuey;
+		    if( globalx * localx <= 0 ) {
+		    	valuex = Math.abs( localx ); //if backtrack occures along in X direction
+		    }
+		    else
+			valuex = 0; //if no backtrack occures along in X direction
+		    if( globaly * localy <= 0 ){
+			    valuey = Math.abs( localy );//if backtrack occures along in Y direction
+		    }
+		    else
+	               valuey = 0;// if no backtrack occures along in Y direction
+		    double backtrack = valuex + valuey;
+		    double r1 = ( 1 + 0.25 );
+		    double r2 = 1 + (0.25 * manhattan( currentx , currenty ) < manhattan( globalx , globaly ) ? (1 - manhattan( currentx , currenty ) / manhattan( globalx , globaly )) : 0);
+		    return Math.pow( backtrack , (r1 * r2) );//cost will increase exponent wise
+		    }
+}    
+	
 	
 }
