@@ -108,38 +108,77 @@ public class Server {
 		}
 		else {
 			//first the current bin is to be checked for passenger pick and/or drop
-			//that procedure remains
-			ArrayList <Passenger> neighbourlist = neighbours(d);
-			int k = 0;
-			while(k < 3) {
-				Passenger bestp = bestPassenger(neighbourlist, d);
-				neighbourlist.remove(bestp);
-				
-				path.add(bestp.ori);
-				path.add(bestp.dest);
-				//a function needed to organize " ArrayList <BinNumber> path "
-				plist.add(bestp);
-				int i = path.indexOf(d.dbin);
-				//finds the current index of the driver on the path and
-				//as the path is organized next index will lead to the final destination
-				d.dbin = path.get(i+1);
-				routes(path, d, plist);
-				
-				path.remove(bestp.ori);
-				path.remove(bestp.dest);
-				plist.remove(bestp);
-				
-				k++;
+			for( int x = 0; x < plist.size(); x++) {
+				if (d.dbin == plist.get(x).ori)
+					d.plist.add(plist.get(x));
+				if (d.dbin == plist.get(x).dest)
+					d.plist.remove(plist.get(x));
 				
 			}
+		if(d.plist.size() == 3) {
+			//if car is full then continue on path
+			int i = path.indexOf(d.dbin);
+			d.dbin = path.get(i+1);
+			routes(path, d, plist);
 		}
-		
+		else {
+			//if there'are vacant seats then find new passegers
+				ArrayList <Passenger> neighbourlist = neighbours(d);
+				int k = 0;
+				while(k < 3) {
+					Passenger bestp = bestPassenger(neighbourlist, d);
+					neighbourlist.remove(bestp);
+					
+					path.add(bestp.ori);
+					path.add(bestp.dest);
+					//a function needed to organize " ArrayList <BinNumber> path "
+					plist.add(bestp);
+					//finds the current index of the driver on the path
+					int i = path.indexOf(d.dbin);
+					//as the path is organized next index will lead to the final destination
+					d.dbin = path.get(i+1);
+					routes(path, d, plist);
+					
+					path.remove(bestp.ori);
+					path.remove(bestp.dest);
+					plist.remove(bestp);
+					
+					k++;
+					
+				}
+			}
+		}
 	}
 	public static ArrayList <Passenger> neighbours(Driver d) {
 		ArrayList <Passenger> plist = new ArrayList <Passenger>();
 		//receives a driver and generates its 9 neighbours
 		//finds the max bins
+		int max = bins[d.dbin.a][d.dbin.b].binDensity;
+		for(int i=d.dbin.a-1 ; i<d.dbin.a+2;i++) {
+			for(int j=d.dbin.b-1 ; j<d.dbin.b+2;j++) {
+				if(i>=0 || i<31) {
+					if(j>=0 || j<22) {
+						if(max < bins[i][j].binDensity) {
+							max = bins[i][j].binDensity;
+						}
+					}
+				}
+			}
+											
+		}
 		//takes all the passengers from max bins and puts them in a arraylist of passengers
+		for(int i=d.dbin.a-1 ; i<d.dbin.a+2;i++) {
+			for(int j=d.dbin.b-1 ; j<d.dbin.b+2;j++) {
+				if(i>=0 || i<31) {
+					if(j>=0 || j<22) {
+						if(max == bins[i][j].binDensity) {
+							 plist.addAll(bins[i][j].plist);
+						}
+					}
+				}
+			}
+											
+		}
 		//returns the arraylist
 		return plist;
 	}
