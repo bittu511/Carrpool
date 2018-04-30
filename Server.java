@@ -132,6 +132,7 @@ public class Server {
 		else {
 			//if there'are vacant seats then find new passegers
 				ArrayList <Passenger> neighbourlist = neighbours(d);
+				neighbourlist.removeAll(plist);   //paseengers who already served in route must be overlooked
 				int k = 0;
 				while(k < 3) {
 					Passenger bestp = bestPassenger(neighbourlist, d);
