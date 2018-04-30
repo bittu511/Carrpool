@@ -99,6 +99,14 @@ public class Server {
 		return manh;
 		
 	}
+	public static int manhattan (double x, double y) {
+		int manh =0 ;
+//		needs to finish
+		return manh;
+		
+	}
+	
+	
 	public static void routes(ArrayList <BinNumber> path, Driver d, ArrayList <Passenger> plist) {
 		if((path.get(path.size() - 1).a == d.p1.dest.a) && (path.get(path.size() - 1).b == d.p1.dest.b)){
 			Path p = new Path();
@@ -185,7 +193,6 @@ public class Server {
 	public static Passenger bestPassenger(ArrayList <Passenger> plist, Driver d) {
 		Passenger p = new Passenger();
 		//selects the best passenger for driver d from plist
-		Passenger p = new Passenger();
 		ArrayList <Passenger> list = new ArrayList <Passenger>();
 		list = plist;
 		double dis = distortion( d , list.get(0) );//cost for distortion
@@ -205,12 +212,12 @@ public class Server {
 	}
 	public static double BacktrackCost( Driver d , Passenger p ){
 		    //cost calculation if the car backtracks
-		    double globalx = d.p1.destX - d.p1.destX;
-		    double globaly = d.p1.destY - d.p1.destY;
-		    double localx = p.oriX - d.x;
-		    double localy = p.oriY - d.y;
-		    double currentx = d.p1.destX - d.x;
-		    double currenty = d.p1.destY - d.y;
+		    double globalx = d.p1.dest.a - d.p1.ori.a;
+		    double globaly = d.p1.dest.b - d.p1.ori.b;
+		    double localx = p.ori.a - d.dbin.a;
+		    double localy = p.ori.b - d.dbin.b;
+		    double currentx = d.p1.dest.a - d.dbin.a;
+		    double currenty = d.p1.dest.b - d.dbin.b;
 		    double valuex , valuey;
 		    if( globalx * localx <= 0 ) {
 		    	valuex = Math.abs( localx ); //if backtrack occures along in X direction
@@ -227,7 +234,7 @@ public class Server {
 		    double r2 = 1 + (0.25 * manhattan( currentx , currenty ) < manhattan( globalx , globaly ) ? (1 - manhattan( currentx , currenty ) / manhattan( globalx , globaly )) : 0);
 		    return Math.pow( backtrack , (r1 * r2) );//cost will increase exponent wise
 		    }
-}    
+    
 	
 	
 }
