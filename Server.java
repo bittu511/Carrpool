@@ -7,7 +7,7 @@ public class Server {
 	public static Bin bins[][] = new Bin[31][22];
 	
 	
-	public static ArrayList <Path> allPaths;
+	public static ArrayList <Path> allPaths = new ArrayList <Path>();
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -117,39 +117,54 @@ public class Server {
 		else {
 			//first the current bin is to be checked for passenger pick and/or drop
 			for( int x = 0; x < plist.size(); x++) {
-				if (d.dbin == plist.get(x).ori)
+				if (d.dbin == plist.get(x).ori) {
 					d.plist.add(plist.get(x));
-				if (d.dbin == plist.get(x).dest)
+					path.add(plist.get(x).dest);
+					
+				}
+					
+					
+				if (d.dbin == plist.get(x).dest) {
 					d.plist.remove(plist.get(x));
-				
+					d.pcount--;
+				}
 			}
-		if(d.plist.size() == 3) {
-			//if car is full then continue on path
+		if(d.pcount == 3) {
+			path.add(d.p1.dest);
+			//finds the current index of the driver on the path
 			int i = path.indexOf(d.dbin);
+			
+			//	path optimize function to be added	
+			path = optimize(i, path, d.p1.dest, d);
+			//if car is full then continue on path
+			i = path.indexOf(d.dbin);
 			d.dbin = path.get(i+1);
 			routes(path, d, plist);
 		}
 		else {
-			//if there'are vacant seats then find new passegers
+			//if there'are vacant seats then find new passengers
 				ArrayList <Passenger> neighbourlist = neighbours(d);
-				neighbourlist.removeAll(plist);   //paseengers who already served in route must be overlooked
+				neighbourlist.removeAll(plist);   //passengers who already served in route must be overlooked
 				int k = 0;
 				while(k < 3) {
 					Passenger bestp = bestPassenger(neighbourlist, d);
 					neighbourlist.remove(bestp);
 					
 					path.add(bestp.ori);
-					path.add(bestp.dest);
-					//a function needed to organize " ArrayList <BinNumber> path "
-					plist.add(bestp);
+					
 					//finds the current index of the driver on the path
 					int i = path.indexOf(d.dbin);
+					
+					//a function needed to organize " ArrayList <BinNumber> path "
+					
+					path = optimize(i, path, d.p1.dest, d);
+					plist.add(bestp);
 					//as the path is organized next index will lead to the final destination
 					d.dbin = path.get(i+1);
+					d.pcount++;
 					routes(path, d, plist);
-					
+					d.pcount--;
 					path.remove(bestp.ori);
-					path.remove(bestp.dest);
 					plist.remove(bestp);
 					
 					k++;
@@ -221,21 +236,45 @@ public class Server {
 		    double currenty = d.p1.dest.b - d.dbin.b;
 		    double valuex , valuey;
 		    if( globalx * localx <= 0 ) {
-		    	valuex = Math.abs( localx ); //if backtrack occures along in X direction
+		    	valuex = Math.abs( localx ); //if backtrack occurs along in X direction
 		    }
 		    else
-			valuex = 0; //if no backtrack occures along in X direction
+			valuex = 0; //if no backtrack occurs along in X direction
 		    if( globaly * localy <= 0 ){
-			    valuey = Math.abs( localy );//if backtrack occures along in Y direction
+			    valuey = Math.abs( localy );//if backtrack occurs along in Y direction
 		    }
 		    else
-	               valuey = 0;// if no backtrack occures along in Y direction
+	               valuey = 0;// if no backtrack occurs along in Y direction
 		    double backtrack = valuex + valuey;
 		    double r1 = ( 1 + 0.25 );
 		    double r2 = 1 + (0.25 * manhattan( currentx , currenty ) < manhattan( globalx , globaly ) ? (1 - manhattan( currentx , currenty ) / manhattan( globalx , globaly )) : 0);
 		    return Math.pow( backtrack , (r1 * r2) );//cost will increase exponent wise
 		    }
     
+	public static ArrayList <BinNumber>  optimize(int b, ArrayList <BinNumber> oldpath, BinNumber l, Driver d) {
+		ArrayList <BinNumber> newp = new ArrayList <BinNumber>();
+		ArrayList <BinNumber> oldp = new ArrayList <BinNumber>();
+		int i=0;
+		while(b != i) {
+			oldp.add(oldpath.get(i));
+			i++;
+		}
+		oldp.add(oldpath.get(i));
+		
+		while(i != oldpath.size()-1) {
+			newp.add(oldpath.get(i));
+			i++;
+		}
+		newp = arrange(oldp.get(oldp.size()-1), newp, l);
+		oldp.addAll(newp);
+		return oldp;
+		
+	}
 	
-	
+	public static ArrayList <BinNumber>  arrange(BinNumber b, ArrayList <BinNumber> p, BinNumber l) {
+		Route_hop hop = new Route_hop();
+		ArrayList <BinNumber> fin = new ArrayList <BinNumber>();
+    	fin.addAll(hop.arrange(b, p, l));
+		return fin;
+	}
 }
