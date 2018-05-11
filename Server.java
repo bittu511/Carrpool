@@ -100,8 +100,8 @@ public class Server {
 		
 	}
 	public static int manhattan (double x, double y) {
-		int manh =0 ;
-//		needs to finish
+		int manh =0;
+		manh = x + y;
 		return manh;
 		
 	}
