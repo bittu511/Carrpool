@@ -1,7 +1,10 @@
-package carpool;
+package carpool_master1;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class Server {
 	public static Bin bins[][] = new Bin[31][22];
@@ -99,8 +102,8 @@ public class Server {
 		return manh;
 		
 	}
-	public static int manhattan (double x, double y) {
-		int manh =0;
+	public static double manhattan (double x, double y) {
+		double manh = 0;
 		manh = x + y;
 		return manh;
 		
@@ -277,4 +280,27 @@ public class Server {
     	fin.addAll(hop.arrange(b, p, l));
 		return fin;
 	}
+	/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+	public static ArrayList <ArrayList> intialPopulation(ArrayList <BinNumber> p){
+		ArrayList <ArrayList> newlist = new ArrayList <ArrayList>();
+		for (int i = 0 ; i < 6 ; i++ ) {
+			Collections.shuffle(p);
+			if ( newlist.size() >= 1 ) {
+				for(int j = 0 ; j < newlist.size() ; j++ ) {
+					if(Arrays.equals(newlist.get(j).toArray(),p.toArray())) {
+					newlist.add(p);
+					}
+			else
+				newlist.add(p);
+						
+			}
+		}
+			
+				
+	}
+		
+		return newlist;
+	
+}
+	
 }
