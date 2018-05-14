@@ -22,62 +22,49 @@ public class Server {
 		passengerGeneration();
 		Driver d = new Driver();
 		Passenger P = new Passenger();
-		P.createPassenger();
+		P.name = "z";
+		P.ori.a = 5;
+		P.ori.b = 1;
+		P.dest.a = 5;
+		P.dest.b = 7;
+//		P.createPassenger();
 		d.p1 = P;
-		d.x = P.oriX;
-		d.y = P.oriY;
+//		d.x = P.oriX;
+//		d.y = P.oriY;
 		d.dbin.a = P.ori.a;
 		d.dbin.b = P.ori.b;
+		
+		ArrayList <BinNumber> binlist = new ArrayList <BinNumber>();
+		binlist.add(d.dbin);
+		ArrayList <Passenger> passengerlist = new ArrayList <Passenger>();
+		
+		routes(binlist, d, passengerlist);
 				
 	}
-	
+	static int arr_oriX[] = {5,5,5,5,5,5,5,5,4,4,4,4,4,4,5,6,6,6,7,7,6};
+    static int arr_oriY[] = {0,0,1,1,2,2,2,2,3,3,5,5,5,5,5,4,6,4,6,3,3};
+    static int arr_destX[] = {4,4,6,6,6,5,3,2,6,5,3,5,7,7,7,7,7,3,3,2,3};
+    static int arr_destY[] = {2,1,1,3,3,4,4,4,5,4,6,6,5,5,2,1,4,3,3,5,2};
+    static String arr_name[] = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u"};
 	static void passengerGeneration() throws IOException {
-		Passenger[] plist = new Passenger[1];	//Should be more than 100
+		Passenger[] plist = new Passenger[21];//Should be more than 100
 		for(int i = 0; i < plist.length; i++) {
 			plist[i] = new Passenger();
-			plist[i].createPassenger();
-			BinNumber n = plist[i].allocation();
-			if(plist[i].oriX>22.454 && plist[i].oriX<22.657 && plist[i].oriY>88.281 && plist[i].oriY<88.491) {
-				bins[n.a][n.b].plist.add(plist[i]);
-				bins[n.a][n.b].binDensity++;
-			}
-			else
-				System.out.println("Sorry! No Service");
-			
+			plist[i].name = arr_name[i];
+			plist[i].ori.a = arr_oriX[i];
+			plist[i].ori.b = arr_oriY[i];
+			plist[i].dest.a = arr_destX[i];
+			plist[i].dest.b = arr_destY[i];
+	//		plist[i].createPassenger();
+			//BinNumber n = plist[i].allocation();
+			//if(plist[i].ori.a>22.454 && plist[i].dest.a<22.657 && plist[i].oriY>88.281 && plist[i].oriY<88.491) {
+				bins[plist[i].ori.a][plist[i].ori.b].plist.add(plist[i]);
+				bins[plist[i].ori.a][plist[i].ori.b].binDensity++;
+//			}
+//			else
+//				System.out.println("Sorry! No Service");
+//			
 		}
-		
-	}
-	public static ArrayList<Bin> Maximun_Density_Bins(Driver d) { 
-		//finding the neighboring bins with max density
-		ArrayList <Bin> list = new ArrayList <Bin>();
-		int dx = (int) Math.floor((22.657-d.x)/0.00655);
-		int dy = (int) Math.floor((88.491-d.y)/0.00954);
-		int max = bins[dx][dy].binDensity;
-		for(int i=dx-1 ; i<dx+2;i++) {
-			for(int j=dy-1 ; j<dy+2;i++) {
-				if(i>=0 || i<31) {
-					if(j>=0 || j<22) {
-						if(max < bins[i][j].binDensity) {
-							max = bins[i][j].binDensity;
-						}
-					}
-				}
-			}
-											
-		}
-		for(int i=dx-1 ; i<dx+2;i++) {
-			for(int j=dy-1 ; j<dy+2;i++) {
-				if(i>=0 || i<31) {
-					if(j>=0 || j<22) {
-						if(max == bins[i][j].binDensity) {
-							 list.add(bins[i][j]);
-						}
-					}
-				}
-			}
-											
-		}
-		return list;
 		
 	}
 	
@@ -146,15 +133,19 @@ public class Server {
 		}
 		else {
 			//if there'are vacant seats then find new passengers
-				ArrayList <Passenger> neighbourlist = neighbours(d);
-				neighbourlist.removeAll(plist);   //passengers who already served in route must be overlooked
+			    ArrayList <Passenger> neighbourlist = new ArrayList <Passenger>();
+				neighbourlist.addAll(neighbours(d));
+//				neighbourlist.removeAll(plist);//passengers who already served in route must be overlooked
 				int k = 0;
 				while(k < 3) {
+					
 					Passenger bestp = bestPassenger(neighbourlist, d);
 					neighbourlist.remove(bestp);
 					
 					path.add(bestp.ori);
-					
+					for(int i = 0; i < path.size() ; i++ ) {
+						System.out.print(path.get(i).a + path.get(i).b);
+					}
 					//finds the current index of the driver on the path
 					int i = path.indexOf(d.dbin);
 					
@@ -185,8 +176,10 @@ public class Server {
 			for(int j=d.dbin.b-1 ; j<d.dbin.b+2;j++) {
 				if(i>=0 || i<31) {
 					if(j>=0 || j<22) {
-						if(max < bins[i][j].binDensity) {
-							max = bins[i][j].binDensity;
+						if(i != d.dbin.a && j != d.dbin.b) {
+							if(max < bins[i][j].binDensity) {
+								max = bins[i][j].binDensity;
+							}
 						}
 					}
 				}
@@ -194,18 +187,24 @@ public class Server {
 											
 		}
 		//takes all the passengers from max bins and puts them in a arraylist of passengers
+		plist.addAll(bins[d.dbin.a][d.dbin.b].plist);
+		
+		
 		for(int i=d.dbin.a-1 ; i<d.dbin.a+2;i++) {
 			for(int j=d.dbin.b-1 ; j<d.dbin.b+2;j++) {
-				if(i>=0 || i<31) {
-					if(j>=0 || j<22) {
-						if(max == bins[i][j].binDensity) {
-							 plist.addAll(bins[i][j].plist);
-						}
+				if(i>=0 && i<31) {
+					if(j>=0 && j<22) {
+							
+							if(max == bins[i][j].binDensity) {
+								plist.addAll(bins[i][j].plist);
+							}
+						
 					}
 				}
 			}
 											
 		}
+		
 		//returns the arraylist
 		return plist;
 	}
@@ -268,7 +267,7 @@ public class Server {
 			newp.add(oldpath.get(i));
 			i++;
 		}
-		newp = arrange(oldp.get(oldp.size()-1), newp, l);
+		newp.addAll(arrange(oldp.get(oldp.size()-1), newp, l));
 		oldp.addAll(newp);
 		return oldp;
 		
