@@ -1,4 +1,4 @@
-package carpool_master1;
+package carpool;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.Collections;
 public class Server {
 	public static Bin bins[][] = new Bin[31][22];
 	
-	
+	public static int z=0;
 	public static ArrayList <Path> allPaths = new ArrayList <Path>();
 	
 	
@@ -36,13 +36,21 @@ public class Server {
 		
 		ArrayList <BinNumber> binlist = new ArrayList <BinNumber>();
 		binlist.add(d.dbin);
+		binlist.add(d.p1.dest);
+		
 		ArrayList <Passenger> passengerlist = new ArrayList <Passenger>();
 		
-		routes(binlist, d, passengerlist);
-				
+		route(binlist, d, passengerlist, 0);
+			for(int i = 0; i< allPaths.size(); i++) {
+				System.out.println("path");
+				for(int j=0; j<allPaths.get(i).binno.size(); j++) {
+					System.out.print(+allPaths.get(i).binno.get(j).a + " " + allPaths.get(i).binno.get(j).b + "|");
+				}
+			}
+			System.out.println(allPaths.size());
 	}
 	static int arr_oriX[] = {5,5,5,5,5,5,5,5,4,4,4,4,4,4,5,6,6,6,7,7,6};
-    static int arr_oriY[] = {0,0,1,1,2,2,2,2,3,3,5,5,5,5,5,4,6,4,6,3,3};
+    static int arr_oriY[] = {0,0,1,1,2,2,2,2,3,3,5,5,5,5,5,4,6,4,6,3,6};
     static int arr_destX[] = {4,4,6,6,6,5,3,2,6,5,3,5,7,7,7,7,7,3,3,2,3};
     static int arr_destY[] = {2,1,1,3,3,4,4,4,5,4,6,6,5,5,2,1,4,3,3,5,2};
     static String arr_name[] = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u"};
@@ -97,76 +105,7 @@ public class Server {
 	}
 	
 	
-	public static void routes(ArrayList <BinNumber> path, Driver d, ArrayList <Passenger> plist) {
-		if((path.get(path.size() - 1).a == d.p1.dest.a) && (path.get(path.size() - 1).b == d.p1.dest.b)){
-			Path p = new Path();
-			p.binno.addAll(path);
-			allPaths.add(p);
-			//if destination matches to final one then make it a route and store
-		}
-		else {
-			//first the current bin is to be checked for passenger pick and/or drop
-			for( int x = 0; x < plist.size(); x++) {
-				if (d.dbin == plist.get(x).ori) {
-					d.plist.add(plist.get(x));
-					path.add(plist.get(x).dest);
-					
-				}
-					
-					
-				if (d.dbin == plist.get(x).dest) {
-					d.plist.remove(plist.get(x));
-					d.pcount--;
-				}
-			}
-		if(d.pcount == 3) {
-			path.add(d.p1.dest);
-			//finds the current index of the driver on the path
-			int i = path.indexOf(d.dbin);
-			
-			//	path optimize function to be added	
-			path = optimize(i, path, d.p1.dest, d);
-			//if car is full then continue on path
-			i = path.indexOf(d.dbin);
-			d.dbin = path.get(i+1);
-			routes(path, d, plist);
-		}
-		else {
-			//if there'are vacant seats then find new passengers
-			    ArrayList <Passenger> neighbourlist = new ArrayList <Passenger>();
-				neighbourlist.addAll(neighbours(d));
-//				neighbourlist.removeAll(plist);//passengers who already served in route must be overlooked
-				int k = 0;
-				while(k < 3) {
-					
-					Passenger bestp = bestPassenger(neighbourlist, d);
-					neighbourlist.remove(bestp);
-					
-					path.add(bestp.ori);
-					for(int i = 0; i < path.size() ; i++ ) {
-						System.out.print(path.get(i).a + path.get(i).b);
-					}
-					//finds the current index of the driver on the path
-					int i = path.indexOf(d.dbin);
-					
-					//a function needed to organize " ArrayList <BinNumber> path "
-					
-					path = optimize(i, path, d.p1.dest, d);
-					plist.add(bestp);
-					//as the path is organized next index will lead to the final destination
-					d.dbin = path.get(i+1);
-					d.pcount++;
-					routes(path, d, plist);
-					d.pcount--;
-					path.remove(bestp.ori);
-					plist.remove(bestp);
-					
-					k++;
-					
-				}
-			}
-		}
-	}
+	
 	public static ArrayList <Passenger> neighbours(Driver d) {
 		ArrayList <Passenger> plist = new ArrayList <Passenger>();
 		//receives a driver and generates its 9 neighbours
@@ -174,9 +113,10 @@ public class Server {
 		int max = bins[d.dbin.a][d.dbin.b].binDensity;
 		for(int i=d.dbin.a-1 ; i<d.dbin.a+2;i++) {
 			for(int j=d.dbin.b-1 ; j<d.dbin.b+2;j++) {
-				if(i>=0 || i<31) {
-					if(j>=0 || j<22) {
-						if(i != d.dbin.a && j != d.dbin.b) {
+				if(i>=0 && i<31) {
+					if(j>=0 && j<22) {
+						if(i != d.dbin.a || j != d.dbin.b) {
+							System.out.print("bin" + i + " " + j);
 							if(max < bins[i][j].binDensity) {
 								max = bins[i][j].binDensity;
 							}
@@ -212,7 +152,7 @@ public class Server {
 		Passenger p = new Passenger();
 		//selects the best passenger for driver d from plist
 		ArrayList <Passenger> list = new ArrayList <Passenger>();
-		list = plist;
+		list.addAll(plist);
 		double dis = distortion( d , list.get(0) );//cost for distortion
 		double backtrack = BacktrackCost( d , list.get(0));//cost for backtrack
 		double lcost = dis + backtrack;
@@ -257,49 +197,131 @@ public class Server {
 		ArrayList <BinNumber> newp = new ArrayList <BinNumber>();
 		ArrayList <BinNumber> oldp = new ArrayList <BinNumber>();
 		int i=0;
-		while(b != i) {
+		while(i<=b) {
 			oldp.add(oldpath.get(i));
 			i++;
 		}
-		oldp.add(oldpath.get(i));
-		
-		while(i != oldpath.size()-1) {
+				
+		while(i <= oldpath.size()-1) {
 			newp.add(oldpath.get(i));
 			i++;
 		}
-		newp.addAll(arrange(oldp.get(oldp.size()-1), newp, l));
-		oldp.addAll(newp);
+		Route_hop hop = new Route_hop();
+		ArrayList <BinNumber> fin = new ArrayList <BinNumber>();
+		fin.addAll(hop.arrange(oldpath.get(b), newp, l));
+		System.out.println("newp");
+		for(int x = 0; x < newp.size() ; x++ ) {
+			System.out.print(newp.get(x).a + " "+ newp.get(x).b);
+		}
+		System.out.println("newprtr");
+		
+		oldp.addAll(fin);
+		for(int x = 0; x < oldp.size() ; x++ ) {
+			System.out.print(oldp.get(x).a + " "+ oldp.get(x).b);
+		}
+		for(int x = 0; x < d.plist.size() ; x++ ) {
+			System.out.println(d.plist.get(x).name);
+		}
+		System.out.println("oldtr");
 		return oldp;
 		
 	}
 	
-	public static ArrayList <BinNumber>  arrange(BinNumber b, ArrayList <BinNumber> p, BinNumber l) {
-		Route_hop hop = new Route_hop();
-		ArrayList <BinNumber> fin = new ArrayList <BinNumber>();
-    	fin.addAll(hop.arrange(b, p, l));
-		return fin;
-	}
-	/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
-	public static ArrayList <ArrayList> intialPopulation(ArrayList <BinNumber> p){
-		ArrayList <ArrayList> newlist = new ArrayList <ArrayList>();
-		for (int i = 0 ; i < 6 ; i++ ) {
-			Collections.shuffle(p);
-			if ( newlist.size() >= 1 ) {
-				for(int j = 0 ; j < newlist.size() ; j++ ) {
-					if(Arrays.equals(newlist.get(j).toArray(),p.toArray())) {
-					newlist.add(p);
+	
+	public static void route(ArrayList <BinNumber> path, Driver d, ArrayList <Passenger> plist, int index) {
+		//if destination matches to final one then make it a route and store
+		if((d.dbin.a == d.p1.dest.a) && (d.dbin.b == d.p1.dest.b)){
+			Path p = new Path();
+			p.binno.addAll(path);
+			allPaths.add(p);
+			
+		}
+		else {
+			
+//			first the current bin is to be checked for passenger pick and/or drop
+			for( int x = 0; x < plist.size(); x++) {
+				if (d.dbin.equals(plist.get(x).ori)) {
+					d.plist.add(plist.get(x));
+					path.add(path.size()-1,plist.get(x).dest);
+				}
+					
+				if (d.dbin.equals(plist.get(x).dest)) {
+					d.plist.remove(plist.get(x));
+					d.pcount--;
+				}
+			}
+
+//			getting the neighbors of current point
+			ArrayList <Passenger> neighbourlist = new ArrayList <Passenger>();
+			neighbourlist.addAll(neighbours(d));
+//			passengers who already served in route must be overlooked
+			neighbourlist.removeAll(plist);
+			
+			if(d.pcount == 3) {
+				
+//				path optimize function to be called
+				ArrayList <BinNumber> binlist = new ArrayList <BinNumber>();
+				binlist.addAll(optimize(index, path, d.p1.dest, d));
+				path.clear();
+				path.addAll(binlist);			
+//				if car is full then continue on path
+				d.dbin = path.get(index+1);
+				route(path, d, plist,index+1);
+				d.dbin = path.get(index);
+			}
+			else if(path.size() >= 13) {
+				ArrayList <BinNumber> binlist = new ArrayList <BinNumber>();
+				binlist.addAll(optimize(index, path, d.p1.dest, d));
+				path.clear();
+				path.addAll(binlist);			
+//				if car is full then continue on path
+				d.dbin = path.get(index+1);
+				route(path, d, plist,index+1);
+				d.dbin = path.get(index);
+			}
+			else {
+//				
+				int k = 0;
+				while(k < 2) {
+//					if neighborlist is null then go forward
+					if(neighbourlist.size() == 0) {
+						ArrayList <BinNumber> binlist = new ArrayList <BinNumber>();
+						binlist.addAll(optimize(index, path, d.p1.dest, d));
+						path.clear();
+						path.addAll(binlist);			
+//						if car is full then continue on path
+						d.dbin = path.get(index+1);
+						route(path, d, plist,index+1);
+						d.dbin = path.get(index);
 					}
-			else
-				newlist.add(p);
+					else {
+						Passenger bestp = bestPassenger(neighbourlist, d);
+						for(int x = 0; x < neighbourlist.size() ; x++ ) {
+							System.out.println(neighbourlist.get(x).name);
+						}
+						neighbourlist.remove(bestp);
+						System.out.println(bestp.name);
+						path.add(path.size() - 1, bestp.ori);
+//						a function needed to organize " ArrayList <BinNumber> path "
+						path = optimize(index, path, d.p1.dest, d);
+						plist.add(bestp);
+						d.dbin = path.get(index+1);
+						d.pcount++;
+						route(path, d, plist, index+1);
+						d.dbin = path.get(index);
+						d.pcount--;
+						path.remove(path.size() - 2);
+						plist.remove(bestp);
 						
+					}
+					
+					k++;
+				}
+				
 			}
 		}
-			
-				
-	}
 		
-		return newlist;
-	
-}
+		
+	}
 	
 }
