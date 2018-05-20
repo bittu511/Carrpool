@@ -1,6 +1,6 @@
 public static void routes(Driver d, ArrayList<BinNumber> path, int cursor, ArrayList<Passenger> serviced,
 			ArrayList<Passenger> pickup) {
-		if (path.get(cursor).equals(d.p1.dest.b)) {
+		if (path.get(cursor).equals(d.p1.dest)) {
 			Path p = new Path();
 			p.binno.addAll(path);
 			allPaths.add(p);
