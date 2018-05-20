@@ -13,7 +13,7 @@ public static void routes(Driver d, ArrayList<BinNumber> path, int cursor, Array
 					d.plist.remove(p);
 				}
 			}
-			
+
 			for (Passenger p : pickupclone) {
 				if (path.get(cursor).equals(p.ori)) {
 					d.plist.add(p);
@@ -24,22 +24,22 @@ public static void routes(Driver d, ArrayList<BinNumber> path, int cursor, Array
 				}
 			}
 			routes(d, path, cursor++, serviced, pickup);
-			if(d.plist.size() < 3 && cursor < 10) {
+			if (d.plist.size() < 3 && cursor < 10) {
 				ArrayList<Passenger> neighbourlist = new ArrayList<Passenger>();
 				neighbourlist.addAll(neighbours(path.get(cursor)));
 				neighbourlist.removeAll(serviced);
 				for (int i = 0; i < 3; i++) {
-					if(!neighbourlist.isEmpty()) {
+					if (!neighbourlist.isEmpty()) {
 						Passenger bestp = bestPassenger(neighbourlist, d, path.get(cursor));
 						neighbourlist.remove(bestp);
-						ArrayList <BinNumber> pathclone = (ArrayList<BinNumber>) path.clone();
-						ArrayList <Passenger> servicedclone = (ArrayList<Passenger>) serviced.clone();
+						ArrayList<BinNumber> pathclone = (ArrayList<BinNumber>) path.clone();
+						ArrayList<Passenger> servicedclone = (ArrayList<Passenger>) serviced.clone();
 						pathclone.add(path.size() - 1, bestp.ori);
 						pathclone = optimize(cursor, pathclone, d);
 						Driver dclone = new Driver(d);
-						pickupclone = (ArrayList<Passenger>) pickup.clone();
-						pickupclone.add(bestp);
-						routes(dclone, pathclone, cursor, servicedclone, pickupclone);
+						ArrayList<Passenger> pickupcl = (ArrayList<Passenger>) pickup.clone();
+						pickupcl.add(bestp);
+						routes(dclone, pathclone, cursor, servicedclone, pickupcl);
 					}
 				}
 			}
